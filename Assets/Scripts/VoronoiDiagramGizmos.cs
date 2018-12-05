@@ -11,12 +11,14 @@ public class VoronoiDiagramGizmos : MonoBehaviour
     [SerializeField] private bool m_showEdges = true;
     [SerializeField] private bool m_showVertices = true;
     [SerializeField] private bool m_showDelaunayTriangulation = true;
+    [SerializeField] private bool m_showMinimumSpanningTree = true;
     private Color m_gridColor = Color.black;
     private Color m_sweepLineColor = Color.red;
     private Color m_inputPointColor = Color.red;
     private Color m_edgeColor = Color.blue;
     private Color m_vertexColor = Color.blue;
     private Color m_delaunayTriangulationColor = Color.green;
+    private Color m_minimumSpanningTreeColor = Color.red;
     private Color m_beachLineColor = Color.red;
     private int m_beachLineDivision = 1000;
 
@@ -124,6 +126,7 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         DrawEdges();
         DrawVertices();
         DrawDelaunayTriangulation();
+        DrawMinimumSpanningTree();
     }
 
     private void DrawBorder()
@@ -309,6 +312,31 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         for (int i = 0; i < m_voronoiDiagram.DelaunayEdges.Count; i++)
         {
             DrawThickLine(m_voronoiDiagram.DelaunayEdges[i].LeftSite, m_voronoiDiagram.DelaunayEdges[i].RightSite);
+        }
+    }
+
+
+    private void DrawMinimumSpanningTree()
+    {
+        if (!m_showMinimumSpanningTree)
+        {
+            return;
+        }
+
+        if (m_voronoiDiagram == null)
+        {
+            return;
+        }
+
+        if (m_voronoiDiagram.MSTSegments == null || m_voronoiDiagram.MSTSegments.Count == 0)
+        {
+            return;
+        }
+
+        Gizmos.color = m_minimumSpanningTreeColor;
+        for (int i = 0; i < m_voronoiDiagram.MSTSegments.Count; i++)
+        {
+            DrawThickLine(m_voronoiDiagram.MSTSegments[i].PointA, m_voronoiDiagram.MSTSegments[i].PointB);
         }
     }
 

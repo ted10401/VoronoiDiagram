@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using MST;
 
 namespace Voronoi
 {
@@ -12,6 +13,7 @@ namespace Voronoi
         public List<Vector3> Vertices;
         public List<VEdge> Edges;
         public List<VEdge> DelaunayEdges;
+        public List<MSTSegment> MSTSegments;
 
         public VoronoiDiagram(Vector3[] inputPoints, VBorder border)
         {
@@ -424,6 +426,19 @@ namespace Voronoi
             {
                 Vertices.Remove(removeVertices[i]);
             }
+
+            MSTEdge[] mstEdges = new MSTEdge[DelaunayEdges.Count];
+            for(int i = 0; i < mstEdges.Length; i++)
+            {
+                MSTEdge mstEdge = new MSTEdge();
+                mstEdge.PointA = DelaunayEdges[i].LeftSite;
+                mstEdge.PointB = DelaunayEdges[i].RightSite;
+
+                mstEdges[i] = mstEdge;
+            }
+
+            MinimumSpanningTree minimumSpanningTree = new MinimumSpanningTree(mstEdges);
+            MSTSegments = minimumSpanningTree.MSTSegments;
         }
     }
 }
