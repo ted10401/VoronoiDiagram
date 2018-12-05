@@ -2,6 +2,7 @@
 
 namespace Voronoi
 {
+    [System.Serializable]
     public class VEdge
     {
         private enum Direction
@@ -14,8 +15,9 @@ namespace Voronoi
         public Vector3 EndPoint;
         public Vector3 VertexPoint;
 
-        private Vector3 m_leftSite;
-        private Vector3 m_rightSite;
+        public Vector3 LeftSite;
+        public Vector3 RightSite;
+
         private float m_lerp;
         private float m_intercept;
         private Direction m_direction;
@@ -26,8 +28,8 @@ namespace Voronoi
             StartPoint = startPoint;
             EndPoint = startPoint;
 
-            m_leftSite = leftSite;
-            m_rightSite = rightSite;
+            LeftSite = leftSite;
+            RightSite = rightSite;
             m_lerp = GetLerp();
             m_intercept = GetIntercept();
             m_direction = GetDirection();
@@ -35,7 +37,7 @@ namespace Voronoi
 
         public void UpdateDirectrix(float directrix)
         {
-            Vector3[] intersectPoints = VParabolaUtils.GetIntersectPoints(m_leftSite, m_rightSite, directrix);
+            Vector3[] intersectPoints = VParabolaUtils.GetIntersectPoints(LeftSite, RightSite, directrix);
 
             if (intersectPoints.Length == 1)
             {
@@ -207,19 +209,19 @@ namespace Voronoi
 
         public bool IsInfinityLerp()
         {
-            return m_rightSite.y == m_leftSite.y;
+            return RightSite.y == LeftSite.y;
         }
 
         private float GetLerp()
         {
-            return (m_leftSite.x - m_rightSite.x) / (m_rightSite.y - m_leftSite.y);
+            return (LeftSite.x - RightSite.x) / (RightSite.y - LeftSite.y);
         }
 
         private float GetIntercept()
         {
-            if (m_leftSite.y == m_rightSite.y)
+            if (LeftSite.y == RightSite.y)
             {
-                return (m_leftSite.x + m_rightSite.x) / 2;
+                return (LeftSite.x + RightSite.x) / 2;
             }
 
             return StartPoint.y - m_lerp * StartPoint.x;
@@ -229,15 +231,15 @@ namespace Voronoi
         {
             if (m_lerp > 0)
             {
-                return m_leftSite.x < m_rightSite.x ? Direction.Left : Direction.Right;
+                return LeftSite.x < RightSite.x ? Direction.Left : Direction.Right;
             }
             else if (m_lerp < 0)
             {
-                return m_leftSite.x > m_rightSite.x ? Direction.Left : Direction.Right;
+                return LeftSite.x > RightSite.x ? Direction.Left : Direction.Right;
             }
             else
             {
-                return m_leftSite.y > m_rightSite.y ? Direction.Left : Direction.Right;
+                return LeftSite.y > RightSite.y ? Direction.Left : Direction.Right;
             }
         }
 

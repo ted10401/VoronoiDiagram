@@ -10,11 +10,13 @@ public class VoronoiDiagramGizmos : MonoBehaviour
     [SerializeField] private bool m_showBeachLine = true;
     [SerializeField] private bool m_showEdges = true;
     [SerializeField] private bool m_showVertices = true;
+    [SerializeField] private bool m_showDelaunayTriangulation = true;
     private Color m_gridColor = Color.black;
     private Color m_sweepLineColor = Color.red;
     private Color m_inputPointColor = Color.red;
     private Color m_edgeColor = Color.blue;
     private Color m_vertexColor = Color.blue;
+    private Color m_delaunayTriangulationColor = Color.green;
     private Color m_beachLineColor = Color.red;
     private int m_beachLineDivision = 1000;
 
@@ -23,7 +25,15 @@ public class VoronoiDiagramGizmos : MonoBehaviour
     [SerializeField] private float m_width = 20;
     [SerializeField] private float m_height = 20;
     [SerializeField] private float m_sweepLine = 10;
-    [SerializeField] private Vector3[] m_inputPoints;
+    [SerializeField] private Vector3[] m_inputPoints =
+                                                    {
+                                                        new Vector3(-6, 6, 0),
+                                                        new Vector3(6, 5, 0),
+                                                        new Vector3(-3, 0, 0),
+                                                        new Vector3(3, -3, 0),
+                                                        new Vector3(-8, -5, 0),
+                                                        new Vector3(8, -9, 0)
+                                                    };
 
     private float HalfWidth { get { return m_width / 2; } }
     private float HalfHeight { get { return m_height / 2; } }
@@ -103,7 +113,7 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         }
     }
 
-    private VoronoiDiagram m_voronoiDiagram;
+    [SerializeField] private VoronoiDiagram m_voronoiDiagram;
 
     private void OnDrawGizmos()
     {
@@ -113,6 +123,7 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         DrawBeachLine();
         DrawEdges();
         DrawVertices();
+        DrawDelaunayTriangulation();
     }
 
     private void DrawBorder()
@@ -276,6 +287,30 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         }
     }
 
+
+    private void DrawDelaunayTriangulation()
+    {
+        if(!m_showDelaunayTriangulation)
+        {
+            return;
+        }
+
+        if (m_voronoiDiagram == null)
+        {
+            return;
+        }
+
+        if (m_voronoiDiagram.DelaunayEdges == null || m_voronoiDiagram.DelaunayEdges.Count == 0)
+        {
+            return;
+        }
+
+        Gizmos.color = m_delaunayTriangulationColor;
+        for (int i = 0; i < m_voronoiDiagram.DelaunayEdges.Count; i++)
+        {
+            DrawThickLine(m_voronoiDiagram.DelaunayEdges[i].LeftSite, m_voronoiDiagram.DelaunayEdges[i].RightSite);
+        }
+    }
 
 
     private void DrawSolidDisc(Vector3 center, float radius)

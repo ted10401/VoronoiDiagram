@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Voronoi
 {
+    [System.Serializable]
     public class VoronoiDiagram
     {
         private VBorder m_border;
@@ -11,6 +12,7 @@ namespace Voronoi
         private float m_ly;
         public List<Vector3> Vertices;
         public List<VEdge> Edges;
+        public List<VEdge> DelaunayEdges;
 
         public VoronoiDiagram(Vector3[] inputPoints, VBorder border)
         {
@@ -179,8 +181,8 @@ namespace Voronoi
 
             Vector3 edgeStartPoint = new Vector3(site.x, VParabolaUtils.GetParabolaValueY(beachLineParabola.FocusPoint, ly, site.x), 0);
             VEdge leftEdge = new VEdge(edgeStartPoint, beachLineParabola.FocusPoint, site);
-            Edges.Add(leftEdge);
             VEdge rightEdge = new VEdge(edgeStartPoint, site, beachLineParabola.FocusPoint);
+            Edges.Add(leftEdge);
             Edges.Add(rightEdge);
 
             p0 = new VParabola(beachLineParabola.FocusPoint);
@@ -366,6 +368,47 @@ namespace Voronoi
             for (int i = 0; i < Edges.Count; i++)
             {
                 Edges[i].Finish(m_border);
+            }
+
+            DelaunayEdges = new List<VEdge>();
+            for (int i = 0; i < Edges.Count; i++)
+            {
+                Vector3 leftSite = Edges[i].LeftSite;
+                Vector3 rightSite = Edges[i].RightSite;
+
+                if(leftSite.x == rightSite.x)
+                {
+                    if(leftSite.y < rightSite.y)
+                    {
+                        Vector3 temp = leftSite;
+                        leftSite = rightSite;
+                        rightSite = temp;
+                    }
+                }
+                else
+                {
+                    if(leftSite.x < rightSite.x)
+                    {
+                        Vector3 temp = leftSite;
+                        leftSite = rightSite;
+                        rightSite = temp;
+                    }
+                }
+
+                bool valid = true;
+                for(int j = 0; j < DelaunayEdges.Count; j++)
+                {
+                    if(DelaunayEdges[j].LeftSite == leftSite && DelaunayEdges[j].RightSite == rightSite)
+                    {
+                        valid = false;
+                        break;
+                    }
+                }
+
+                if(valid)
+                {
+                    DelaunayEdges.Add(new VEdge(Vector3.zero, leftSite, rightSite));
+                }
             }
 
             List<Vector3> removeVertices = new List<Vector3>();
