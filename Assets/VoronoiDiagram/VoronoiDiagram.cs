@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Voronoi
 {
@@ -323,6 +323,18 @@ namespace Voronoi
             if(removeParabolas.Count == 0)
             {
                 return;
+            }
+
+            if(leftParabola.CircleEvent != null)
+            {
+                m_eventQueues.Remove(leftParabola.CircleEvent);
+                leftParabola.CircleEvent = null;
+            }
+
+            if (rightParabola.CircleEvent != null)
+            {
+                m_eventQueues.Remove(rightParabola.CircleEvent);
+                rightParabola.CircleEvent = null;
             }
 
             Vertices.Add(algorithmEvent.VertexPoint);
