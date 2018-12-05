@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Voronoi
 {
-    [System.Serializable]
     public class VoronoiDiagram
     {
         private VBorder m_border;

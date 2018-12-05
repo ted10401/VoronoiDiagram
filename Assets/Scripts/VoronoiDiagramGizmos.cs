@@ -113,7 +113,7 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         }
     }
 
-    [SerializeField] private VoronoiDiagram m_voronoiDiagram;
+    private VoronoiDiagram m_voronoiDiagram;
 
     private void OnDrawGizmos()
     {

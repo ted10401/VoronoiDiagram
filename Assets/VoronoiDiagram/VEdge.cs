@@ -2,7 +2,6 @@
 
 namespace Voronoi
 {
-    [System.Serializable]
     public class VEdge
     {
         private enum Direction
