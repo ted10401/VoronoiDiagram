@@ -56,7 +56,7 @@ namespace Voronoi
             m_eventQueues = new List<VEvent>();
             for (int i = 0; i < inputPoints.Length; i++)
             {
-                if(inputPoints[i].y < ly)
+                if (inputPoints[i].y < ly)
                 {
                     continue;
                 }
@@ -252,7 +252,7 @@ namespace Voronoi
 
         public Vector3 GetBeachLine(float x, float ly)
         {
-            if(m_parabolas == null || m_parabolas.Count == 0)
+            if (m_parabolas == null || m_parabolas.Count == 0)
             {
                 return new Vector3(x, m_border.HalfHeight, 0);
             }
@@ -283,7 +283,7 @@ namespace Voronoi
             VEdge leftEdge = parabola.LeftEdge;
             VEdge rightEdge = parabola.RightEdge;
 
-            if(!VEdge.HasValidIntersectPoint(leftEdge, rightEdge))
+            if (!VEdge.HasValidIntersectPoint(leftEdge, rightEdge))
             {
                 return;
             }
@@ -313,19 +313,19 @@ namespace Voronoi
             VParabola leftParabola = removeParabola.LeftParabola;
             VParabola rightParabola = removeParabola.RightParabola;
 
-            if(leftParabola == null || rightParabola == null)
+            if (leftParabola == null || rightParabola == null)
             {
                 return;
             }
 
             removeParabolas.Add(removeParabola);
 
-            if(removeParabolas.Count == 0)
+            if (removeParabolas.Count == 0)
             {
                 return;
             }
 
-            if(leftParabola.CircleEvent != null)
+            if (leftParabola.CircleEvent != null)
             {
                 m_eventQueues.Remove(leftParabola.CircleEvent);
                 leftParabola.CircleEvent = null;
