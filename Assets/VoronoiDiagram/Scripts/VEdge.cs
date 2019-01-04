@@ -87,7 +87,7 @@ namespace Voronoi
 
                 if (IsInfinityLerp())
                 {
-                    if (EndPoint.y < VertexPoint.y)
+                    if (EndPoint.z < VertexPoint.z)
                     {
                         EndPoint = VertexPoint;
                     }
@@ -123,26 +123,26 @@ namespace Voronoi
 
                 if (!IsInfinityLerp())
                 {
-                    float y = m_lerp * x + m_intercept;
+                    float z = m_lerp * x + m_intercept;
 
-                    if (y > border.HalfHeight || y < -border.HalfHeight)
+                    if (z > border.HalfHeight || z < -border.HalfHeight)
                     {
-                        y = Mathf.Clamp(y, -border.HalfHeight, border.HalfHeight);
-                        x = (y - m_intercept) / m_lerp;
+                        z = Mathf.Clamp(z, -border.HalfHeight, border.HalfHeight);
+                        x = (z - m_intercept) / m_lerp;
                     }
 
-                    SetVertexPoint(new Vector3(x, y, 0));
+                    SetVertexPoint(new Vector3(x, 0, z));
                 }
                 else
                 {
-                    SetVertexPoint(new Vector3(EndPoint.x, -border.HalfHeight, 0));
+                    SetVertexPoint(new Vector3(EndPoint.x, 0, -border.HalfHeight));
                 }
             }
 
             if (StartPoint.x < -border.HalfWidth ||
                 StartPoint.x > border.HalfWidth ||
-                StartPoint.y < -border.HalfHeight ||
-                StartPoint.y > border.HalfHeight)
+                StartPoint.z < -border.HalfHeight ||
+                StartPoint.z > border.HalfHeight)
             {
                 if (StartPoint.x < -border.HalfWidth || StartPoint.x > border.HalfWidth)
                 {
@@ -150,32 +150,32 @@ namespace Voronoi
 
                     if (!IsInfinityLerp())
                     {
-                        StartPoint.y = m_lerp * StartPoint.x + m_intercept;
+                        StartPoint.z = m_lerp * StartPoint.x + m_intercept;
 
-                        if (StartPoint.y < -border.HalfHeight || StartPoint.y > border.HalfHeight)
+                        if (StartPoint.z < -border.HalfHeight || StartPoint.z > border.HalfHeight)
                         {
-                            StartPoint.y = Mathf.Clamp(StartPoint.y, -border.HalfHeight, border.HalfHeight);
-                            StartPoint.x = (StartPoint.y - m_intercept) / m_lerp;
+                            StartPoint.z = Mathf.Clamp(StartPoint.z, -border.HalfHeight, border.HalfHeight);
+                            StartPoint.x = (StartPoint.z - m_intercept) / m_lerp;
                         }
                     }
                 }
                 else
                 {
-                    StartPoint.y = Mathf.Clamp(StartPoint.y, -border.HalfHeight, border.HalfHeight);
-                    StartPoint.x = (StartPoint.y - m_intercept) / m_lerp;
+                    StartPoint.z = Mathf.Clamp(StartPoint.z, -border.HalfHeight, border.HalfHeight);
+                    StartPoint.x = (StartPoint.z - m_intercept) / m_lerp;
 
                     if (StartPoint.x < -border.HalfWidth || StartPoint.x > border.HalfWidth)
                     {
                         StartPoint.x = Mathf.Clamp(StartPoint.x, -border.HalfWidth, border.HalfWidth);
-                        StartPoint.y = m_lerp * StartPoint.x + m_intercept;
+                        StartPoint.z = m_lerp * StartPoint.x + m_intercept;
                     }
                 }
             }
 
             if (VertexPoint.x < -border.HalfWidth ||
                 VertexPoint.x > border.HalfWidth ||
-                VertexPoint.y < -border.HalfHeight ||
-                VertexPoint.y > border.HalfHeight)
+                VertexPoint.z < -border.HalfHeight ||
+                VertexPoint.z > border.HalfHeight)
             {
                 if (VertexPoint.x < -border.HalfWidth || VertexPoint.x > border.HalfWidth)
                 {
@@ -183,24 +183,24 @@ namespace Voronoi
 
                     if (!IsInfinityLerp())
                     {
-                        VertexPoint.y = m_lerp * VertexPoint.x + m_intercept;
+                        VertexPoint.z = m_lerp * VertexPoint.x + m_intercept;
 
-                        if (VertexPoint.y < -border.HalfHeight || VertexPoint.y > border.HalfHeight)
+                        if (VertexPoint.z < -border.HalfHeight || VertexPoint.z > border.HalfHeight)
                         {
-                            VertexPoint.y = Mathf.Clamp(VertexPoint.y, -border.HalfHeight, border.HalfHeight);
-                            VertexPoint.x = (VertexPoint.y - m_intercept) / m_lerp;
+                            VertexPoint.z = Mathf.Clamp(VertexPoint.z, -border.HalfHeight, border.HalfHeight);
+                            VertexPoint.x = (VertexPoint.z - m_intercept) / m_lerp;
                         }
                     }
                 }
                 else
                 {
-                    VertexPoint.y = Mathf.Clamp(VertexPoint.y, -border.HalfHeight, border.HalfHeight);
-                    VertexPoint.x = (VertexPoint.y - m_intercept) / m_lerp;
+                    VertexPoint.z = Mathf.Clamp(VertexPoint.z, -border.HalfHeight, border.HalfHeight);
+                    VertexPoint.x = (VertexPoint.z - m_intercept) / m_lerp;
 
                     if (VertexPoint.x < -border.HalfWidth || VertexPoint.x > border.HalfWidth)
                     {
                         VertexPoint.x = Mathf.Clamp(VertexPoint.x, -border.HalfWidth, border.HalfWidth);
-                        VertexPoint.y = m_lerp * VertexPoint.x + m_intercept;
+                        VertexPoint.z = m_lerp * VertexPoint.x + m_intercept;
                     }
                 }
             }
@@ -208,22 +208,22 @@ namespace Voronoi
 
         public bool IsInfinityLerp()
         {
-            return RightSite.y == LeftSite.y;
+            return RightSite.z == LeftSite.z;
         }
 
         private float GetLerp()
         {
-            return (LeftSite.x - RightSite.x) / (RightSite.y - LeftSite.y);
+            return (LeftSite.x - RightSite.x) / (RightSite.z - LeftSite.z);
         }
 
         private float GetIntercept()
         {
-            if (LeftSite.y == RightSite.y)
+            if (LeftSite.z == RightSite.z)
             {
                 return (LeftSite.x + RightSite.x) / 2;
             }
 
-            return StartPoint.y - m_lerp * StartPoint.x;
+            return StartPoint.z - m_lerp * StartPoint.x;
         }
 
         private Direction GetDirection()
@@ -238,7 +238,7 @@ namespace Voronoi
             }
             else
             {
-                return LeftSite.y > RightSite.y ? Direction.Left : Direction.Right;
+                return LeftSite.z > RightSite.z ? Direction.Left : Direction.Right;
             }
         }
 
@@ -291,17 +291,17 @@ namespace Voronoi
             if (leftEdge.IsInfinityLerp())
             {
                 intersectPoint.x = leftEdge.StartPoint.x;
-                intersectPoint.y = rightEdge.m_lerp * intersectPoint.x + rightEdge.m_intercept;
+                intersectPoint.z = rightEdge.m_lerp * intersectPoint.x + rightEdge.m_intercept;
             }
             else if (rightEdge.IsInfinityLerp())
             {
                 intersectPoint.x = rightEdge.StartPoint.x;
-                intersectPoint.y = leftEdge.m_lerp * intersectPoint.x + leftEdge.m_intercept;
+                intersectPoint.z = leftEdge.m_lerp * intersectPoint.x + leftEdge.m_intercept;
             }
             else
             {
                 intersectPoint.x = (rightEdge.m_intercept - leftEdge.m_intercept) / (leftEdge.m_lerp - rightEdge.m_lerp);
-                intersectPoint.y = leftEdge.m_lerp * intersectPoint.x + leftEdge.m_intercept;
+                intersectPoint.z = leftEdge.m_lerp * intersectPoint.x + leftEdge.m_intercept;
             }
 
             return intersectPoint;

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using Voronoi;
+using SpanningTree;
+using System.Collections.Generic;
 
 public class VoronoiDiagramGizmos : MonoBehaviour
 {
@@ -29,12 +31,12 @@ public class VoronoiDiagramGizmos : MonoBehaviour
     [SerializeField] private float m_sweepLine = 10;
     [SerializeField] private Vector3[] m_inputPoints =
                                                     {
-                                                        new Vector3(-6, 6, 0),
-                                                        new Vector3(6, 5, 0),
+                                                        new Vector3(-6, 0, 6),
+                                                        new Vector3(6, 0, 5),
                                                         new Vector3(-3, 0, 0),
-                                                        new Vector3(3, -3, 0),
-                                                        new Vector3(-8, -5, 0),
-                                                        new Vector3(8, -9, 0)
+                                                        new Vector3(3, 0, -3),
+                                                        new Vector3(-8, 0, -5),
+                                                        new Vector3(8, 0, -9)
                                                     };
 
     private float HalfWidth { get { return m_width / 2; } }
@@ -76,7 +78,7 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         m_inputPoints = new Vector3[m_inputPointNumbers];
         for (int i = 0; i < m_inputPoints.Length; i++)
         {
-            m_inputPoints[i] = new Vector3(Random.Range(-HalfWidth, HalfWidth), Random.Range(-HalfHeight, HalfHeight), 0);
+            m_inputPoints[i] = new Vector3(Random.Range(-HalfWidth, HalfWidth), 0, Random.Range(-HalfHeight, HalfHeight));
         }
 
 #if UNITY_EDITOR
@@ -137,10 +139,10 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         }
 
         Gizmos.color = m_gridColor;
-        DrawThickLine(new Vector3(-HalfWidth, HalfHeight, 0), new Vector3(HalfWidth, HalfHeight, 0));
-        DrawThickLine(new Vector3(HalfWidth, HalfHeight, 0), new Vector3(HalfWidth, -HalfHeight, 0));
-        DrawThickLine(new Vector3(HalfWidth, -HalfHeight, 0), new Vector3(-HalfWidth, -HalfHeight, 0));
-        DrawThickLine(new Vector3(-HalfWidth, -HalfHeight, 0), new Vector3(-HalfWidth, HalfHeight, 0));
+        DrawThickLine(new Vector3(-HalfWidth, 0, HalfHeight), new Vector3(HalfWidth, 0, HalfHeight));
+        DrawThickLine(new Vector3(HalfWidth, 0, HalfHeight), new Vector3(HalfWidth, 0, -HalfHeight));
+        DrawThickLine(new Vector3(HalfWidth, 0, -HalfHeight), new Vector3(-HalfWidth, 0, -HalfHeight));
+        DrawThickLine(new Vector3(-HalfWidth, 0, -HalfHeight), new Vector3(-HalfWidth, 0, HalfHeight));
     }
 
     private void DrawInputPoints()
@@ -177,7 +179,7 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         }
 
         Gizmos.color = m_sweepLineColor;
-        DrawThickLine(new Vector3(-HalfWidth, m_sweepLine, 0), new Vector3(HalfWidth, m_sweepLine, 0));
+        DrawThickLine(new Vector3(-HalfWidth, 0, m_sweepLine), new Vector3(HalfWidth, 0, m_sweepLine));
     }
 
     private void DrawBeachLine()
@@ -201,15 +203,15 @@ public class VoronoiDiagramGizmos : MonoBehaviour
         {
             point1 = m_voronoiDiagram.GetBeachLine(GetDivisionX(x), m_sweepLine);
             point2 = m_voronoiDiagram.GetBeachLine(GetDivisionX(x + 1), m_sweepLine);
-            point1.y = Mathf.Clamp(point1.y, -HalfHeight, HalfHeight);
-            point2.y = Mathf.Clamp(point2.y, -HalfHeight, HalfHeight);
+            point1.z = Mathf.Clamp(point1.z, -HalfHeight, HalfHeight);
+            point2.z = Mathf.Clamp(point2.z, -HalfHeight, HalfHeight);
 
-            if (point1.y == HalfHeight && point2.y == HalfHeight)
+            if (point1.z == HalfHeight && point2.z == HalfHeight)
             {
                 continue;
             }
 
-            if (point1.y == -HalfHeight && point2.y == -HalfHeight)
+            if (point1.z == -HalfHeight && point2.z == -HalfHeight)
             {
                 continue;
             }
@@ -248,9 +250,9 @@ public class VoronoiDiagramGizmos : MonoBehaviour
                 m_voronoiDiagram.Edges[i].UpdateDirectrix(m_sweepLine);
 
                 if (m_voronoiDiagram.Edges[i].StartPoint.x > HalfWidth || m_voronoiDiagram.Edges[i].StartPoint.x < -HalfWidth ||
-                    m_voronoiDiagram.Edges[i].StartPoint.y > HalfHeight || m_voronoiDiagram.Edges[i].StartPoint.y < -HalfHeight ||
+                    m_voronoiDiagram.Edges[i].StartPoint.z > HalfHeight || m_voronoiDiagram.Edges[i].StartPoint.z < -HalfHeight ||
                     m_voronoiDiagram.Edges[i].EndPoint.x > HalfWidth || m_voronoiDiagram.Edges[i].EndPoint.x < -HalfWidth ||
-                    m_voronoiDiagram.Edges[i].EndPoint.y > HalfHeight || m_voronoiDiagram.Edges[i].EndPoint.y < -HalfHeight)
+                    m_voronoiDiagram.Edges[i].EndPoint.z > HalfHeight || m_voronoiDiagram.Edges[i].EndPoint.z < -HalfHeight)
                 {
                     continue;
                 }
@@ -303,19 +305,20 @@ public class VoronoiDiagramGizmos : MonoBehaviour
             return;
         }
 
-        if (m_voronoiDiagram.DelaunayEdges == null || m_voronoiDiagram.DelaunayEdges.Count == 0)
+        if (m_voronoiDiagram.Edges == null || m_voronoiDiagram.Edges.Count == 0)
         {
             return;
         }
 
         Gizmos.color = m_delaunayTriangulationColor;
-        for (int i = 0; i < m_voronoiDiagram.DelaunayEdges.Count; i++)
+        for (int i = 0; i < m_voronoiDiagram.Edges.Count; i++)
         {
-            DrawThickLine(m_voronoiDiagram.DelaunayEdges[i].LeftSite, m_voronoiDiagram.DelaunayEdges[i].RightSite);
+            DrawThickLine(m_voronoiDiagram.Edges[i].LeftSite, m_voronoiDiagram.Edges[i].RightSite);
         }
     }
 
-
+    private List<VEdge> m_delaunayTriangulationEdges;
+    private BaseSpanningTree m_spanningTree;
     private void DrawMinimumSpanningTree()
     {
         if (!m_showMinimumSpanningTree)
@@ -328,15 +331,33 @@ public class VoronoiDiagramGizmos : MonoBehaviour
             return;
         }
 
-        if (m_voronoiDiagram.MSTSegments == null || m_voronoiDiagram.MSTSegments.Count == 0)
+        if (m_voronoiDiagram.Edges == null || m_voronoiDiagram.Edges.Count == 0)
         {
             return;
         }
 
-        Gizmos.color = m_minimumSpanningTreeColor;
-        for (int i = 0; i < m_voronoiDiagram.MSTSegments.Count; i++)
+        if(m_spanningTree == null || m_delaunayTriangulationEdges != m_voronoiDiagram.Edges)
         {
-            DrawThickLine(m_voronoiDiagram.MSTSegments[i].PointA, m_voronoiDiagram.MSTSegments[i].PointB);
+            m_delaunayTriangulationEdges = m_voronoiDiagram.Edges;
+
+            List<STEdge> edges = new List<STEdge>();
+            STEdge cacheEdge = null;
+            for(int i = 0; i < m_delaunayTriangulationEdges.Count; i++)
+            {
+                cacheEdge = new STEdge();
+                cacheEdge.PointA = m_delaunayTriangulationEdges[i].LeftSite;
+                cacheEdge.PointB = m_delaunayTriangulationEdges[i].RightSite;
+
+                edges.Add(cacheEdge);
+            }
+
+            m_spanningTree = new MinimumSpanningTree(edges.ToArray());
+        }
+
+        Gizmos.color = m_minimumSpanningTreeColor;
+        for(int i = 0; i < m_spanningTree.Segments.Count; i++)
+        {
+            DrawThickLine(m_spanningTree.Segments[i].PointA, m_spanningTree.Segments[i].PointB);
         }
     }
 

@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace MST
+namespace SpanningTree
 {
-    public class MSTEdge
+    public class STEdge
     {
         public Vector3 PointA;
         public Vector3 PointB;

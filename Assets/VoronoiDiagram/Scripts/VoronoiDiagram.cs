@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using MST;
 
 namespace Voronoi
 {
@@ -12,8 +11,6 @@ namespace Voronoi
         private float m_ly;
         public List<Vector3> Vertices;
         public List<VEdge> Edges;
-        public List<VEdge> DelaunayEdges;
-        public List<MSTSegment> MSTSegments;
 
         public VoronoiDiagram(Vector3[] inputPoints, VBorder border)
         {
@@ -34,7 +31,7 @@ namespace Voronoi
                 VEvent currentEvent = m_eventQueues[0];
                 m_eventQueues.RemoveAt(0);
 
-                m_ly = currentEvent.Site.y;
+                m_ly = currentEvent.Site.z;
 
                 if (currentEvent.IsSiteEvent)
                 {
@@ -59,7 +56,7 @@ namespace Voronoi
             m_eventQueues = new List<VEvent>();
             for (int i = 0; i < inputPoints.Length; i++)
             {
-                if (inputPoints[i].y < ly)
+                if (inputPoints[i].z < ly)
                 {
                     continue;
                 }
@@ -70,12 +67,12 @@ namespace Voronoi
 
             while (m_eventQueues.Count > 0)
             {
-                if (m_eventQueues[0].Site.y < ly)
+                if (m_eventQueues[0].Site.z < ly)
                 {
                     break;
                 }
 
-                m_ly = m_eventQueues[0].Site.y;
+                m_ly = m_eventQueues[0].Site.z;
 
                 VEvent currentEvent = m_eventQueues[0];
                 m_eventQueues.RemoveAt(0);
@@ -97,7 +94,7 @@ namespace Voronoi
         {
             m_eventQueues.Sort((VEvent x, VEvent y) =>
             {
-                int yDiff = y.Site.y.CompareTo(x.Site.y);
+                int yDiff = y.Site.z.CompareTo(x.Site.z);
                 if (yDiff != 0)
                 {
                     return yDiff;
@@ -123,9 +120,9 @@ namespace Voronoi
             VParabola p1 = null;
             VParabola p2 = null;
 
-            if (beachLineParabola.FocusPoint.y == site.y)
+            if (beachLineParabola.FocusPoint.z == site.z)
             {
-                Vector3 startPoint = new Vector3((beachLineParabola.FocusPoint.x + site.x) / 2, m_border.HalfHeight, 0);
+                Vector3 startPoint = new Vector3((beachLineParabola.FocusPoint.x + site.x) / 2, 0, m_border.HalfHeight);
                 VEdge edge = null;
                 if (beachLineParabola.FocusPoint.x < site.x)
                 {
@@ -180,7 +177,7 @@ namespace Voronoi
                 beachLineParabola.CircleEvent = null;
             }
 
-            Vector3 edgeStartPoint = new Vector3(site.x, VParabolaUtils.GetParabolaValueY(beachLineParabola.FocusPoint, ly, site.x), 0);
+            Vector3 edgeStartPoint = new Vector3(site.x, 0, VParabolaUtils.GetParabolaValueZ(beachLineParabola.FocusPoint, ly, site.x));
             VEdge leftEdge = new VEdge(edgeStartPoint, beachLineParabola.FocusPoint, site);
             VEdge rightEdge = new VEdge(edgeStartPoint, site, beachLineParabola.FocusPoint);
             Edges.Add(leftEdge);
@@ -257,14 +254,14 @@ namespace Voronoi
         {
             if (m_parabolas == null || m_parabolas.Count == 0)
             {
-                return new Vector3(x, m_border.HalfHeight, 0);
+                return new Vector3(x, 0, m_border.HalfHeight);
             }
 
             float minValue = 0f;
             float cacheMinValue = 0f;
             for (int i = 0; i < m_parabolas.Count; i++)
             {
-                cacheMinValue = VParabolaUtils.GetParabolaValueY(m_parabolas[i].FocusPoint, ly, x);
+                cacheMinValue = VParabolaUtils.GetParabolaValueZ(m_parabolas[i].FocusPoint, ly, x);
 
                 if (i == 0)
                 {
@@ -278,7 +275,7 @@ namespace Voronoi
                 }
             }
 
-            return new Vector3(x, minValue, 0);
+            return new Vector3(x, 0, minValue);
         }
 
         private void CheckCircleEvent(VParabola parabola)
@@ -294,9 +291,9 @@ namespace Voronoi
             Vector3 intersectPoint = VEdge.GetIntersectPoint(leftEdge, rightEdge);
 
             float distance = Vector3.Distance(intersectPoint, parabola.FocusPoint);
-            float targetLy = intersectPoint.y - distance;
+            float targetLy = intersectPoint.z - distance;
 
-            Vector3 circlePoint = new Vector3(parabola.FocusPoint.x, targetLy, 0);
+            Vector3 circlePoint = new Vector3(parabola.FocusPoint.x, 0, targetLy);
 
             VEvent algorithmEvent = new VEvent(circlePoint, false);
             algorithmEvent.Parabola = parabola;
@@ -366,57 +363,11 @@ namespace Voronoi
 
         private void FinishEdge()
         {
-            for (int i = 0; i < Edges.Count; i++)
-            {
-                Edges[i].Finish(m_border);
-            }
-
-            DelaunayEdges = new List<VEdge>();
-            for (int i = 0; i < Edges.Count; i++)
-            {
-                Vector3 leftSite = Edges[i].LeftSite;
-                Vector3 rightSite = Edges[i].RightSite;
-
-                if(leftSite.x == rightSite.x)
-                {
-                    if(leftSite.y < rightSite.y)
-                    {
-                        Vector3 temp = leftSite;
-                        leftSite = rightSite;
-                        rightSite = temp;
-                    }
-                }
-                else
-                {
-                    if(leftSite.x < rightSite.x)
-                    {
-                        Vector3 temp = leftSite;
-                        leftSite = rightSite;
-                        rightSite = temp;
-                    }
-                }
-
-                bool valid = true;
-                for(int j = 0; j < DelaunayEdges.Count; j++)
-                {
-                    if(DelaunayEdges[j].LeftSite == leftSite && DelaunayEdges[j].RightSite == rightSite)
-                    {
-                        valid = false;
-                        break;
-                    }
-                }
-
-                if(valid)
-                {
-                    DelaunayEdges.Add(new VEdge(Vector3.zero, leftSite, rightSite));
-                }
-            }
-
             List<Vector3> removeVertices = new List<Vector3>();
             for (int i = 0; i < Vertices.Count; i++)
             {
                 if (Vertices[i].x > m_border.HalfWidth || Vertices[i].x < -m_border.HalfWidth ||
-                    Vertices[i].y > m_border.HalfHeight || Vertices[i].y < -m_border.HalfHeight)
+                    Vertices[i].z > m_border.HalfHeight || Vertices[i].z < -m_border.HalfHeight)
                 {
                     removeVertices.Add(Vertices[i]);
                 }
@@ -427,18 +378,46 @@ namespace Voronoi
                 Vertices.Remove(removeVertices[i]);
             }
 
-            MSTEdge[] mstEdges = new MSTEdge[DelaunayEdges.Count];
-            for(int i = 0; i < mstEdges.Length; i++)
+            VEdge cacheEdge = null;
+            for (int i = 0; i < Edges.Count; i++)
             {
-                MSTEdge mstEdge = new MSTEdge();
-                mstEdge.PointA = DelaunayEdges[i].LeftSite;
-                mstEdge.PointB = DelaunayEdges[i].RightSite;
+                cacheEdge = Edges[i];
+                cacheEdge.Finish(m_border);
 
-                mstEdges[i] = mstEdge;
+                if (cacheEdge.LeftSite.x == cacheEdge.RightSite.x)
+                {
+                    if (cacheEdge.LeftSite.z < cacheEdge.RightSite.z)
+                    {
+                        Vector3 temp = cacheEdge.LeftSite;
+                        cacheEdge.LeftSite = cacheEdge.RightSite;
+                        cacheEdge.RightSite = temp;
+                    }
+                }
+                else
+                {
+                    if (cacheEdge.LeftSite.x < cacheEdge.RightSite.x)
+                    {
+                        Vector3 temp = cacheEdge.LeftSite;
+                        cacheEdge.LeftSite = cacheEdge.RightSite;
+                        cacheEdge.RightSite = temp;
+                    }
+                }
+            }
+            
+            List<VEdge> validEdges = new List<VEdge>();
+            for (int i = 0; i < Edges.Count; i++)
+            {
+                cacheEdge = Edges[i];
+
+                if(validEdges.Contains(cacheEdge))
+                {
+                    continue;
+                }
+
+                validEdges.Add(cacheEdge);
             }
 
-            MinimumSpanningTree minimumSpanningTree = new MinimumSpanningTree(mstEdges);
-            MSTSegments = minimumSpanningTree.MSTSegments;
+            Edges = validEdges;
         }
     }
 }
